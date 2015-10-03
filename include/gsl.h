@@ -73,6 +73,8 @@ using owner = T;
 // GSL.util: utilities
 //
 
+#define implicit
+
 // final_act allows you to ensure something gets run at the end of a scope
 template <class F>
 class final_act
@@ -139,14 +141,14 @@ class not_null
 {
     static_assert(std::is_assignable<T&, std::nullptr_t>::value, "T cannot be assigned nullptr.");
 public:
-    not_null(T t) : ptr_(t) { ensure_invariant(); }
+    implicit not_null(T t) : ptr_(t) { ensure_invariant(); }
     not_null& operator=(const T& t) { ptr_ = t; ensure_invariant(); return *this; }
 
     not_null(const not_null &other) = default;
     not_null& operator=(const not_null &other) = default;
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
-    not_null(const not_null<U> &other)
+    implicit not_null(const not_null<U> &other)
     {
         *this = other;
     }
@@ -213,9 +215,9 @@ class maybe_null_dbg
     static_assert(std::is_assignable<T&, std::nullptr_t>::value, "T cannot be assigned nullptr.");
 public:
     maybe_null_dbg() : ptr_(nullptr), tested_(false) {}
-    maybe_null_dbg(std::nullptr_t) : ptr_(nullptr), tested_(false) {}
+    implicit maybe_null_dbg(std::nullptr_t) : ptr_(nullptr), tested_(false) {}
 
-    maybe_null_dbg(const T& p) : ptr_(p), tested_(false) {}
+    implicit maybe_null_dbg(const T& p) : ptr_(p), tested_(false) {}
     maybe_null_dbg& operator=(const T& p)
     {
         if (ptr_ != p)
@@ -240,7 +242,7 @@ public:
 
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
-    maybe_null_dbg(const not_null<U> &other) : ptr_(other.get()), tested_(false) {}
+    implicit maybe_null_dbg(const not_null<U> &other) : ptr_(other.get()), tested_(false) {}
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
     maybe_null_dbg& operator=(const not_null<U> &other)
@@ -252,7 +254,7 @@ public:
 
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
-    maybe_null_dbg(const maybe_null_dbg<U> &other) : ptr_(other.ptr_), tested_(false) {}
+    implicit maybe_null_dbg(const maybe_null_dbg<U> &other) : ptr_(other.ptr_), tested_(false) {}
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
     maybe_null_dbg& operator=(const maybe_null_dbg<U> &other)
@@ -264,7 +266,7 @@ public:
 
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
-    maybe_null_dbg(const maybe_null_ret<U> &other) : ptr_(other.get()), tested_(false) {}
+    implicit maybe_null_dbg(const maybe_null_ret<U> &other) : ptr_(other.get()), tested_(false) {}
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
     maybe_null_dbg& operator=(const maybe_null_ret<U> &other)
@@ -317,16 +319,16 @@ class maybe_null_ret
     static_assert(std::is_assignable<T&, std::nullptr_t>::value, "T cannot be assigned nullptr.");
 public:
     maybe_null_ret() : ptr_(nullptr) {}
-    maybe_null_ret(std::nullptr_t) : ptr_(nullptr) {}
+    implicit maybe_null_ret(std::nullptr_t) : ptr_(nullptr) {}
 
-    maybe_null_ret(const T& p) : ptr_(p) {}
+    implicit maybe_null_ret(const T& p) : ptr_(p) {}
     maybe_null_ret& operator=(const T& p) { ptr_ = p; return *this; }
     
-    maybe_null_ret(const maybe_null_ret& rhs) = default;
+    implicit maybe_null_ret(const maybe_null_ret& rhs) = default;
     maybe_null_ret& operator=(const maybe_null_ret& rhs) = default;
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
-    maybe_null_ret(const not_null<U> &other) : ptr_(other.get()) {}
+    implicit maybe_null_ret(const not_null<U> &other) : ptr_(other.get()) {}
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
     maybe_null_ret& operator=(const not_null<U> &other)
@@ -337,7 +339,7 @@ public:
 
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
-    maybe_null_ret(const maybe_null_ret<U> &other) : ptr_(other.get()) {}
+    implicit maybe_null_ret(const maybe_null_ret<U> &other) : ptr_(other.get()) {}
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
     maybe_null_ret& operator=(const maybe_null_ret<U> &other)
@@ -348,7 +350,7 @@ public:
 
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
-    maybe_null_ret(const maybe_null_dbg<U> &other) : ptr_(other.get()) {}
+    implicit maybe_null_ret(const maybe_null_dbg<U> &other) : ptr_(other.get()) {}
 
     template <typename U, typename Dummy = std::enable_if_t<std::is_convertible<U, T>::value>>
     maybe_null_ret& operator=(const maybe_null_dbg<U> &other)
